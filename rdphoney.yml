@@ -1,0 +1,71 @@
+---
+  - hosts: all
+
+    tasks:
+      - name: RDPHoney | Gather | print os info
+        debug:
+          msg: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}"
+
+      - name: RDPHoney | Gather | os info
+        include_vars: "{{ item }}"
+        with_first_found:
+          - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+          - "{{ ansible_distribution }}.yml"
+
+      - name: RDPHoney | Gather | default info
+        include_vars:
+          file: default.yml
+        tags: vars
+
+      - name: RDPHoney | install non-specific packages
+        package:
+          name: "{{ item }}"
+        with_items: "{{ pkgs }}"
+
+      - name: RDPHoney | install os-specific packages
+        package:
+          name: "{{ item }}"
+        with_items: "{{ pkgs_osspec }}"
+
+      - name: RDPHoney | add users group
+        group:
+          name: users
+
+      - name: RDPHoney | create rdphoney user
+        user:
+          name: rdphoney
+          shell: /bin/bash
+          group: users
+
+      - name: RDPHoney | copy rdphoney sysconfig file
+        copy:
+          dest: "{{ sysconfig_dir }}/rdphoney"
+          src: rdphoney.sysconfig
+          mode: 0644
+
+      - name: RDPHoney | create log file
+        copy:
+          content: ""
+          dest: /var/log/honeyrdp.log
+          force: no
+          group: users
+          owner: rdphoney
+          mode: 0644
+
+      - name: RDPHoney | install Runit for CentOS hosts
+        yum:
+          name: "{{ runit_rpm_src }}"
+          state: present
+        when: ansible_distribution|lower == 'centos'
+
+      - name: RDPHoney | create runit directories
+        file:
+          state: directory
+          path: "{{ runit_service_dir }}"
+          mode: 0755
+
+      - name: RDPHoney | create rdphoney runit run file
+        template:
+          src: rdphoney.run.j2
+          dest: "{{ runit_service_dir }}/run"
+          mode: 0755

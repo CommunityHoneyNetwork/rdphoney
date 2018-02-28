@@ -1,0 +1,7 @@
+
+[output_hpfeeds]
+server = localhost
+port = 10000
+identifier = abc123
+secret = secret
+debug=false

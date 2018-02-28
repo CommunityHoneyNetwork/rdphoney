@@ -1,0 +1,21 @@
+# This file is read from /etc/sysconfig/rdphoney or /etc/default/rdphoney
+# depending on the base distro
+#
+# This can be modified to change the default setup of the rdphoney unattended installation
+
+DEBUG=false
+
+# CHN Server api to register to
+CHN_SERVER="http://chnserver"
+
+# Server to stream data to
+FEEDS_SERVER="localhost"
+FEEDS_SERVER_PORT=10000
+
+# Deploy key from the FEEDS_SERVER administrator
+# This is a REQUIRED value
+DEPLOY_KEY=
+
+# Registration information file
+# If running in a container, this needs to persist
+# RDPHONEY_JSON="/etc/rdphoney/rdphoney.json

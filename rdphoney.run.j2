@@ -1,0 +1,111 @@
+#!/bin/bash
+
+trap "exit 130" SIGINT
+trap "exit 137" SIGKILL
+trap "exit 143" SIGTERM
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+RDPHONEY_JSON='/etc/rdphoney/rdphoney.json'
+
+register() {
+    local deploy_key="${1:-}"
+    local chnserver="${2:-localhost}"
+    local json="${3:-rdphoney}"
+    local hostname="$(hostname -f)"
+    local honeypot="rdphoney"
+
+    if [[ -z ${deploy_key} ]]
+    then
+        return 1
+    fi
+
+    curl -s -X POST -H "Content-Type: application/json" -d "{
+      \"name\": \"${hostname}-${honeypot}\",
+      \"hostname\": \"$hostname\",
+      \"deploy_key\": \"$deploy_key\",
+      \"honeypot\": \"$honeypot\"
+    }" ${chnserver}/api/sensor/ > ${json}
+}
+
+setup_rdphoney_conf () {
+    local server=${1:-}
+    local server_port=${2:-}
+    local uid=${3:-}
+    local secret=${4:-}
+    local debug=${5:-false}
+
+    pushd /opt
+    cp rdphoney.cfg.dist rdphoney.cfg
+
+    sed -i "s/\[output_hpfeeds\]/[output_hpfeeds]/g" rdphoney.cfg
+    sed -i "s/server = localhost/server = ${server}/g" rdphoney.cfg
+    sed -i "s/port = 10000/port = ${server_port}/g" rdphoney.cfg
+    sed -i "s/identifier = abc123/identifier = ${uid}/g" rdphoney.cfg
+    sed -i "s/secret = secret/secret = ${secret}/g" rdphoney.cfg
+    sed -i "s/debug=false/debug=${debug}/" rdphoney.cfg
+
+    popd
+
+}
+
+main () {
+    source {{ sysconfig_dir }}/rdphoney
+
+    if [[ ${DEBUG} == "true" ]]
+    then
+        set -o xtrace
+    fi
+
+    local deploy_key=${DEPLOY_KEY:-}
+    local chn_server=${CHN_SERVER}
+    local feeds_server=${FEEDS_SERVER:-localhost}
+    local feeds_server_port=${FEEDS_SERVER_PORT:-10000}
+    local json=${RDPHONEY_JSON:-rdphoney.json}
+
+    local debug=${DEBUG:-false}
+
+    if [[ -z ${deploy_key} ]]
+    then
+        echo "[CRIT] - No deploy key found"
+        exit 1
+    fi
+
+    if [[ ! -f ${json} ]] || [[ ! -s ${json} ]]
+    then
+        register ${deploy_key} {$chn_server} ${json}
+
+        return=$?
+
+        if [[ $return -ne 0 ]]
+        then
+            echo "Failed to register with ${chn_server} using key: ${deploy_key}"
+            exit 1
+        fi
+    fi
+
+    local uuid=$(python -c "import json;obj=json.load(file('${json}'));print obj['uuid']")
+
+    if [ -z "$uuid" ]
+    then
+        echo "Could not create sensor using name \"$(hostname -f)\"."
+        exit 1
+    else
+        echo "Created sensor: " $uuid
+    fi
+
+    local feeds_server=$(echo $feeds_server | sed 's#^http://##; s#^https://##; s#/.*$##; s/:.*$//')
+    local uid=$(python -c "import json;obj=json.load(file('${json}'));print obj['identifier']")
+    local secret=$(python -c "import json;obj=json.load(file('${json}'));print obj['secret']")
+
+    setup_rdphoney_conf ${feeds_server} \
+                        ${feeds_server_port} \
+                        ${uid} ${secret} \
+                        ${debug}
+
+    exec su - rdphoney -c "python /opt/rdphoney/rdp_honeyscript.py --config /opt/rdphoney.cfg"
+}
+
+main "$@"
