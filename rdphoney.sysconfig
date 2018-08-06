@@ -5,6 +5,10 @@
 
 DEBUG=false
 
+# IP Address of the honeypot
+# Leaving this blank will default to the docker container IP
+IP_ADDRESS=
+
 # CHN Server api to register to
 CHN_SERVER="http://chnserver"
 
