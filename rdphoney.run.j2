@@ -16,6 +16,7 @@ register() {
     local json="${3:-rdphoney}"
     local hostname="$(hostname -f)"
     local honeypot="rdphoney"
+    local ip="${4:-}"
 
     if [[ -z ${deploy_key} ]]
     then
@@ -25,6 +26,7 @@ register() {
     curl -s -X POST -H "Content-Type: application/json" -d "{
       \"name\": \"${hostname}-${honeypot}\",
       \"hostname\": \"$hostname\",
+      \"ip\": \"${ip}\",
       \"deploy_key\": \"$deploy_key\",
       \"honeypot\": \"$honeypot\"
     }" ${chnserver}/api/sensor/ > ${json}
@@ -64,6 +66,7 @@ main () {
     local feeds_server=${FEEDS_SERVER:-localhost}
     local feeds_server_port=${FEEDS_SERVER_PORT:-10000}
     local json=${RDPHONEY_JSON:-rdphoney.json}
+    local ip=${IP_ADDRESS:-}
 
     local debug=${DEBUG:-false}
 
@@ -75,7 +78,7 @@ main () {
 
     if [[ ! -f ${json} ]] || [[ ! -s ${json} ]]
     then
-        register ${deploy_key} {$chn_server} ${json}
+        register ${deploy_key} {$chn_server} ${json} ${ip}
 
         return=$?
 
