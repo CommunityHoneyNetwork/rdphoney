@@ -6,4 +6,4 @@
   rdphoney_dir: /opt
   rdphoney_user: rdphoney
 
-  runit_service_dir: /etc/service/cowrie
+  runit_service_dir: /etc/service/rdphoney
