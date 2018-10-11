@@ -61,6 +61,7 @@ def invoke_honeypot(addr, port, config):
             address = addy[0].strip()
             logger.info("Connection from: {0}".format(address))
             data = con.recv(4096)  # receive maximum 4K data
+            length = str(len(data))
             st = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             logger.info("Received data from {0} at {1}".format(address, st))
             user = extract_username(data)
@@ -73,13 +74,13 @@ def invoke_honeypot(addr, port, config):
                      }
             logger.info("Starting hpfeeds submission...")
             output.write(entry)
-            logger.info("ip={0}, username={1}, datalen={2}".format(addy[0].strip(), user, str((len(data)))))
+            logger.info("ip={0}, username={1}, datalen={2}".format(address, user, length))
             con.send("0x00000004 RDP_NEG_FAILURE")
             con.shutdown(SHUT_RDWR)
             con.close()
             logger.info("Shutdown connection and closed...")
-        except Exception, e:
-            logger.warning("EXCEPTION: %s", e)
+        except Exception as e:
+            logger.warning("EXCEPTION: {0}".format(repr(e)))
 
 
 def parse_config(config_file):
