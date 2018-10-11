@@ -16,6 +16,7 @@ import socket
 import sys
 import os
 from ConfigParser import ConfigParser
+from base64 import b64encode
 
 from output.hpfeeds import Output
 
@@ -60,8 +61,12 @@ def invoke_honeypot(addr, port, config):
             con, addy = sock.accept()
             address = addy[0].strip()
             logger.info("Connection from: {0}".format(address))
-            data = con.recv(4096)  # receive maximum 4K data
+
+            # receive maximum 4K data, calculate length, then base64encode it for trasfer
+            data = con.recv(4096)
             length = str(len(data))
+            edata = b64encode(data)
+
             st = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             logger.info("Received data from {0} at {1}".format(address, st))
             user = extract_username(data)
@@ -71,6 +76,7 @@ def invoke_honeypot(addr, port, config):
                      "dst_ip": addr,
                      "dst_port": port,
                      "username": user,
+                     "data": edata
                      }
             logger.info("Starting hpfeeds submission...")
             output.write(entry)
