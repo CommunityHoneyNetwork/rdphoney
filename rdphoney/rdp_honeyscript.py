@@ -16,9 +16,9 @@ import socket
 import sys
 import os
 from ConfigParser import ConfigParser
+from base64 import b64encode
 
 from output.hpfeeds import Output
-
 
 # Configure logging to syslog and file
 username = getpass.getuser()
@@ -30,62 +30,63 @@ console.setLevel(logging.INFO)
 console_f = logging.Formatter('%(asctime)s %(name)s: %(levelname)s %(message)s')
 console.setFormatter(console_f)
 
-# On Linux use /dev/log
-#syslog = logging.handlers.SysLogHandler(address='/dev/log', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
-# On Mac OS X use /var/run/syslog
-# syslog = logging.handlers.SysLogHandler(address='/var/run/syslog', facility=logging.handlers.SysLogHandler.LOG_DAEMON)
-
-#syslog.setLevel(logging.DEBUG)
-#syslog_format = logging.Formatter('%(filename)s: %(name)s: %(process)d: %(levelname)s %(funcName)s(): %(message)s')
-#syslog.setFormatter(syslog_format)
-
 logger.addHandler(console)
-#logger.addHandler(syslog)
 
 
 def extract_username(data):
-    match = re.search(r'mstshash=(?P<username>[a-zA-Z0-9]+)', data)
+    match = re.search(r'mstshash=(?P<username>[a-zA-Z0-9-_@]+)', data)
     if match:
-        return match.group('username')
+        username = match.group('username')
+        logger.info("Found username in data: {0}".format(username))
+        return username
     return None
 
 
-def invoke_honeypot(addr, port, logfile, config):
+def invoke_honeypot(addr, port, config):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     serveaddy = (addr, port)
     sock.bind(serveaddy)
     sock.listen(1)
-    print config
+    logger.info("Starting hpfeeds configuration...")
     output = Output(config['server'], config['port'],
                     config['ident'], config['secret'],
                     config['debug'])
     output.start()
+    logger.info("Finished hpfeeds configuration and started hpfeeds...")
 
     while True:
         try:
+            logger.info("Starting socket accept...")
             con, addy = sock.accept()
-            data = con.recv(1024)  # receive maximum 1K data
+            address = addy[0].strip()
+            logger.info("Connection from: {0}".format(address))
+
+            # receive maximum 4K data, calculate length, then base64encode it for trasfer
+            data = con.recv(4096)
+            length = str(len(data))
+            edata = b64encode(data)
+
             st = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            logger.info("Received data from {0} at {1}".format(address, st))
             user = extract_username(data)
             entry = {"timestamp": st,
-                     "src_ip": addy[0].strip(),
+                     "src_ip": address,
                      "src_port": addy[1],
                      "dst_ip": addr,
-                     "dst_port": 3389,
+                     "dst_port": port,
                      "username": user,
-                     "data": data
+                     "data": edata
                      }
+            logger.info("Starting hpfeeds submission...")
             output.write(entry)
-            logger.info("ip=%s, username=%s, datalen=%s", addy[0].strip(), user, str((len(data))))
-            with open(logfile, 'a') as rawf:
-                rawf.write(st + '\n')
-                rawf.write('Source IP: ' + addy[0] + '\n')
-                rawf.write('BEGIN OF RDP DATA:\n' + data + '\n END OF DATA\n')
-                rawf.close()
+            logger.info("ip={0}, username={1}, datalen={2}".format(address, user, length))
             con.send("0x00000004 RDP_NEG_FAILURE")
+            con.shutdown(socket.SHUT_RDWR)
             con.close()
-        except Exception, e:
-            logger.warning("EXCEPTION: %s", e)
+            logger.info("Shutdown connection and closed...")
+        except Exception as e:
+            logger.warning("EXCEPTION: {0}".format(repr(e)))
 
 
 def parse_config(config_file):
@@ -107,10 +108,6 @@ def parse_config(config_file):
 def main():
     oparser = argparse.ArgumentParser(description='Instantiate a simple RDP honeypot',
                                       epilog='http://xkcd.com/353/')
-    oparser.add_argument('-l', '--logfile',
-                         required=False,
-                         default='/var/log/honeyrdp.log',
-                         help='Filename to write output to')
     oparser.add_argument('-p', '--port',
                          required=False,
                          default=3389,
@@ -127,7 +124,7 @@ def main():
     options = oparser.parse_args()
 
     config = parse_config(options.config)
-    invoke_honeypot(options.ip, options.port, options.logfile, config)
+    invoke_honeypot(options.ip, options.port, config)
 
 
 if __name__ == '__main__':
