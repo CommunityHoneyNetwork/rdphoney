@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-'''
-Based on SendMeSpamIDS.py/standalone/rdp.py, work of Joerg Stephan
-'''
+'''Based on SendMeSpamIDS.py/standalone/rdp.py, work of Joerg Stephan'''
 __author__ = 'Alexander Merck<alexander.t.merck@gmail.com>, ' \
              'Jesse Bowling<jesse.bowling@duke.edu>, ' \
              'Joerg Stephan<https://github.com/johestephan>'
@@ -15,16 +13,20 @@ import re
 import socket
 import sys
 import os
-from ConfigParser import ConfigParser
 from base64 import b64encode
-
 from output.hpfeeds import Output
+
+if sys.version_info[0] == 2:
+    from ConfigParser import ConfigParser
+elif sys.version_info[0] == 3:
+    from configparser import ConfigParser
+else:
+    exit("What year is it, man?")
 
 # Configure logging to syslog and file
 username = getpass.getuser()
 logger = logging.getLogger(username)
 logger.setLevel(logging.INFO)
-
 console = logging.StreamHandler(sys.stdout)
 console.setLevel(logging.INFO)
 console_f = logging.Formatter('%(asctime)s %(name)s: %(levelname)s %(message)s')
@@ -34,15 +36,17 @@ logger.addHandler(console)
 
 
 def extract_username(data):
+    """Extract username via regex or return None"""
     match = re.search(r'mstshash=(?P<username>[a-zA-Z0-9-_@]+)', data)
     if match:
-        username = match.group('username')
-        logger.info("Found username in data: {0}".format(username))
-        return username
+        uname = match.group('username')
+        logger.info("Found username in data: {0}".format(uname))
+        return uname
     return None
 
 
 def invoke_honeypot(addr, port, config):
+    """Open listen, start hpfeeds, listen for attackers, repeat"""
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     serveaddy = (addr, port)
@@ -62,7 +66,8 @@ def invoke_honeypot(addr, port, config):
             address = addy[0].strip()
             logger.info("Connection from: {0}".format(address))
 
-            # receive maximum 4K data, calculate length, then base64encode it for trasfer
+            # receive max 4K data, calculate length, then base64encode it for
+            # transfer
             data = con.recv(4096)
             length = str(len(data))
             edata = b64encode(data)
@@ -80,7 +85,11 @@ def invoke_honeypot(addr, port, config):
                      }
             logger.info("Starting hpfeeds submission...")
             output.write(entry)
-            logger.info("ip={0}, username={1}, datalen={2}".format(address, user, length))
+            logger.info(
+                "ip={0}, username={1}, datalen={2}".format(
+                    address, user, length
+                )
+            )
             con.send("0x00000004 RDP_NEG_FAILURE")
             con.shutdown(socket.SHUT_RDWR)
             con.close()
@@ -90,6 +99,7 @@ def invoke_honeypot(addr, port, config):
 
 
 def parse_config(config_file):
+    """Parse config file for hpfeeds config information"""
     if not os.path.isfile(config_file):
         sys.exit("Could not find configuration file: {0}".format(config_file))
 
@@ -106,7 +116,8 @@ def parse_config(config_file):
 
 
 def main():
-    oparser = argparse.ArgumentParser(description='Instantiate a simple RDP honeypot',
+    oparser = argparse.ArgumentParser(description='Instantiate a simple RDP '
+                                                  'honeypot',
                                       epilog='http://xkcd.com/353/')
     oparser.add_argument('-p', '--port',
                          required=False,
