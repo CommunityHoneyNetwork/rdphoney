@@ -8,4 +8,4 @@ repos:
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.13.0
     hooks:
-- id: yamllint
+      - id: yamllint
