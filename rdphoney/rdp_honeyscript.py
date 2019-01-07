@@ -55,6 +55,7 @@ def invoke_honeypot(addr, port, config):
     logger.info("Starting hpfeeds configuration...")
     output = Output(config['server'], config['port'],
                     config['ident'], config['secret'],
+                    config['tags'],
                     config['debug'])
     output.start()
     logger.info("Finished hpfeeds configuration and started hpfeeds...")
@@ -112,6 +113,7 @@ def parse_config(config_file):
     config['ident'] = parser.get('output_hpfeeds', 'identifier')
     config['secret'] = parser.get('output_hpfeeds', 'secret')
     config['debug'] = parser.get('output_hpfeeds', 'debug')
+    config['tags'] = parser.get('output_hpfeeds', 'tags').split(",")
     return config
 
 
