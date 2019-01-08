@@ -37,7 +37,8 @@ setup_rdphoney_conf () {
     local server_port=${2:-}
     local uid=${3:-}
     local secret=${4:-}
-    local debug=${5:-false}
+    local tags=${5:-}
+    local debug=${6:-false}
 
     pushd /opt
     cp rdphoney.cfg.dist rdphoney.cfg
@@ -47,6 +48,7 @@ setup_rdphoney_conf () {
     sed -i "s/port = 10000/port = ${server_port}/g" rdphoney.cfg
     sed -i "s/identifier = abc123/identifier = ${uid}/g" rdphoney.cfg
     sed -i "s/secret = secret/secret = ${secret}/g" rdphoney.cfg
+    sed -i "s/tags =.*/tags = ${tags}/g" rdphoney.cfg
     sed -i "s/debug=false/debug=${debug}/" rdphoney.cfg
 
     popd
@@ -67,6 +69,7 @@ main () {
     local feeds_server_port=${FEEDS_SERVER_PORT:-10000}
     local json=${RDPHONEY_JSON:-rdphoney.json}
     local ip=${IP_ADDRESS:-}
+    local tags=${TAGS:-}
 
     local debug=${DEBUG:-false}
 
@@ -106,6 +109,7 @@ main () {
     setup_rdphoney_conf ${feeds_server} \
                         ${feeds_server_port} \
                         ${uid} ${secret} \
+                        ${tags} \
                         ${debug}
 
     exec su - rdphoney -c "python /opt/rdphoney/rdp_honeyscript.py --config /opt/rdphoney.cfg"

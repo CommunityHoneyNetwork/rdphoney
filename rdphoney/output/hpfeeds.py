@@ -245,12 +245,13 @@ class Output:
     Output plugin for HPFeeds
     """
 
-    def __init__(self, server, port, ident, secret, debug):
+    def __init__(self, server, port, ident, secret, tags, debug):
         log.msg("Early version of hpfeeds-output, untested!")
         self.server = server
         self.port = port
         self.ident = ident
         self.secret = secret
+        self.tags = tags
         self.debug = debug
         self.client = None
         self.meta = {}
@@ -273,6 +274,7 @@ class Output:
         print "Session", session
         self.meta[session] = {'session': session,
                 'startTime': entry["timestamp"], 'endTime': entry["timestamp"],
+                'tags': self.tags,
                 'peerIP': entry["src_ip"], 'peerPort': entry["src_port"],
                 'hostIP': entry["dst_ip"], 'hostPort': entry["dst_port"],
                 'data': entry["data"],
