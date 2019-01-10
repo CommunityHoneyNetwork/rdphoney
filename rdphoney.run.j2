@@ -109,7 +109,7 @@ main () {
     setup_rdphoney_conf ${feeds_server} \
                         ${feeds_server_port} \
                         ${uid} ${secret} \
-                        ${tags} \
+                        "${tags}" \
                         ${debug}
 
     exec su - rdphoney -c "python /opt/rdphoney/rdp_honeyscript.py --config /opt/rdphoney.cfg"
