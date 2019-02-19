@@ -86,11 +86,7 @@ def invoke_honeypot(addr, port, config):
                      }
             logger.info("Starting hpfeeds submission...")
             output.write(entry)
-            logger.info(
-                "ip={0}, username={1}, datalen={2}".format(
-                    address, user, length
-                )
-            )
+            logger.info("timestamp: {}, src_ip: {}, src_port: {}, dst_ip: {}, dst_port: {}, username: {},data: {}".format(st,address,addy[1],addr,port,useredata,))
             con.send("0x00000004 RDP_NEG_FAILURE")
             con.shutdown(socket.SHUT_RDWR)
             con.close()
