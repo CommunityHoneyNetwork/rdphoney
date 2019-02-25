@@ -271,7 +271,6 @@ class Output:
         """
         """
         session = str(uuid.uuid4())
-        print "Session", session
         self.meta[session] = {'session': session,
                 'startTime': entry["timestamp"], 'endTime': entry["timestamp"],
                 'tags': self.tags,
@@ -280,9 +279,8 @@ class Output:
                 'data': entry["data"],
                 'protocol': 'rdp'}
 
-        if not entry["username"]:
-            self.meta[session]["username"] = "None"
+        if entry["username"]:
+            self.meta[session]["rdp_username"] = entry["username"]
 
         meta = self.meta[session]
-        print meta
         self.client.publish(RDPHONEYCHAN, **meta)
