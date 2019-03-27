@@ -48,7 +48,7 @@ setup_rdphoney_conf () {
     sed -i "s/port = 10000/port = ${server_port}/g" rdphoney.cfg
     sed -i "s/identifier = abc123/identifier = ${uid}/g" rdphoney.cfg
     sed -i "s/secret = secret/secret = ${secret}/g" rdphoney.cfg
-    sed -i "s/tags =.*/tags = ${tags}/g" rdphoney.cfg
+    sed -i "s|tags =.*|tags = ${tags}|g" rdphoney.cfg
     sed -i "s/debug=false/debug=${debug}/" rdphoney.cfg
 
     popd
