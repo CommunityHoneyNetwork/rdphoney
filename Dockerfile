@@ -1,4 +1,4 @@
-FROM centos:centos7
+FROM ubuntu:18.04
 
 LABEL maintainer Alexander Merck <alexander.t.merck@gmail.com>
 LABEL name "rdphoney"
@@ -13,11 +13,11 @@ LABEL changelog-url "https://github.com/breakfastdub/rdphoney/commits/master"
 ENV DOCKER "yes"
 ENV playbook "rdphoney.yml"
 
-RUN yum install -y epel-release \
-    && yum install -y ansible
+RUN apt-get update \
+      && apt-get install -y ansible python-apt
 
 RUN echo "localhost ansible_connection=local" >> /etc/ansible/hosts
 ADD . /opt/
 RUN ansible-playbook /opt/${playbook}
 
-ENTRYPOINT ["/sbin/runsvdir", "-P", "/etc/service"]
+ENTRYPOINT ["/usr/bin/runsvdir", "-P", "/etc/service"]

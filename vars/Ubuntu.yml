@@ -1,9 +1,12 @@
 ---
   pkgs_osspec:
-    - python-devel
-    - python2-pip
+    - python-dev
+    - python-pip
     - python-twisted-core
+    - authbind
+    - runit
+    - curl
 
-  sysconfig_dir: /etc/sysconfig
+  sysconfig_dir: /etc/default/
 
   runit_rpm_src: https://github.com/CommunityHoneyNetwork/rpmbuilder-runit/releases/download/2.1.2-1/runit-2.1.2-1.el7.centos.x86_64.rpm
