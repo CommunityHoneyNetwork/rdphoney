@@ -52,12 +52,6 @@
           owner: rdphoney
           mode: 0644
 
-      - name: RDPHoney | install Runit for CentOS hosts
-        yum:
-          name: "{{ runit_rpm_src }}"
-          state: present
-        when: ansible_distribution|lower == 'centos'
-
       - name: RDPHoney | create runit directories
         file:
           state: directory

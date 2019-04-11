@@ -1,6 +1,7 @@
 ---
   pkgs:
     - git
+    - jq
     - python-virtualenv
 
   rdphoney_dir: /opt
