@@ -23,13 +23,18 @@ register() {
         return 1
     fi
 
-    curl -s -X POST -H "Content-Type: application/json" -d "{
-      \"name\": \"${hostname}-${honeypot}\",
-      \"hostname\": \"$hostname\",
-      \"ip\": \"${ip}\",
-      \"deploy_key\": \"$deploy_key\",
-      \"honeypot\": \"$honeypot\"
-    }" ${chnserver}/api/sensor/ > ${json}
+    curl --insecure \
+       --silent \
+       --request POST \
+       --header "Content-Type: application/json" \
+       --output ${json} \
+       --data "{
+    \"name\": \"${hostname}-${honeypot}\",
+    \"hostname\": \"$hostname\",
+    \"ip\": \"${ip}\",
+    \"deploy_key\": \"$deploy_key\",
+    \"honeypot\": \"$honeypot\"
+  }" ${chnserver}/api/sensor/
 }
 
 setup_rdphoney_conf () {
