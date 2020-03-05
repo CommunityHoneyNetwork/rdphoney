@@ -20,8 +20,9 @@ main () {
     chn-register.py \
         -p rdphoney \
         -d "${DEPLOY_KEY}" \
-        -u "http://${CHN_SERVER}" -k \
-        -o "${RDPHONEY_JSON}"
+        -u "${CHN_SERVER}" -k \
+        -o "${RDPHONEY_JSON}" \
+        -i "${IP_ADDRESS}"
 
     local uid="$(cat ${RDPHONEY_JSON} | jq -r .identifier)"
     local secret="$(cat ${RDPHONEY_JSON} | jq -r .secret)"
