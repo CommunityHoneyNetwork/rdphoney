@@ -1,0 +1,11 @@
+version: '3'
+services:
+  rdphoney:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rdphoney:latest
+    volumes:
+      - ./rdphoney:/etc/rdphoney/:z
+    env_file:
+      - rdphoney.env
