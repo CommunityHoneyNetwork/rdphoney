@@ -57,6 +57,7 @@ container_scanning:
   tags:
     - container_scanning
   script:
+    - sudo ntpdate pool.ntp.org
     - env
     - sudo docker pull ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}
     - sudo docker run -d --name db arminc/clair-db:latest
