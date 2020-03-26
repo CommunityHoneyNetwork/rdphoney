@@ -1,20 +1,20 @@
 FROM ubuntu:18.04
 
-LABEL maintainer Alexander Merck <alexander.t.merck@gmail.com>
+LABEL maintainer Team STINGAR <team-stingar@duke.edu>
 LABEL name "rdphoney"
-LABEL version "0.1"
+LABEL version "1.9"
 LABEL release "1"
 LABEL summary "RDPHoney Honeypot Container"
 LABEL description "RDPHoney is a simple RDP connection honeypot"
-LABEL authoritative-source-url "https://github.com/CommunityHoneyNetwork/communityhoneynetwork"
-LABEL changelog-url "https://github.com/breakfastdub/rdphoney/commits/master"
+LABEL authoritative-source-url "https://github.com/CommunityHoneyNetwork/rdphoney"
+LABEL changelog-url "https://github.com/CommunityHoneyNetwork/rdphoney/commits/master"
 
 # Set DOCKER var - used by RDPHoney init to determine logging
 ENV DOCKER "yes"
 ENV RDPHONEY_GROUP "rdphoney"
 ENV RDPHONEY_USER "rdphoney"
 ENV RDPHONEY_DIR "/opt"
-ENV RDPHONEY_JSON "/etc/rdphoney/rdphoney.json"
+ENV RDPHONEY_JSON_DIR "/etc/rdphoney/"
 
 RUN apt-get update \
       && apt-get install -y python-apt \
@@ -23,7 +23,8 @@ RUN apt-get update \
 RUN groupadd -r -g 1000 ${RDPHONEY_GROUP} && \
     useradd -r -u 1000 -m -g ${RDPHONEY_GROUP} ${RDPHONEY_USER} && \
     touch /var/log/honeyrdp.log && \
-    chown ${RDPHONEY_USER}:${RDPHONEY_GROUP} /var/log/honeyrdp.log && \
+    mkdir ${RDPHONEY_JSON_DIR} && \
+    chown ${RDPHONEY_USER}:${RDPHONEY_GROUP} /var/log/honeyrdp.log ${RDPHONEY_JSON_DIR} && \
     chmod 644 /var/log/honeyrdp.log
 
 WORKDIR ${RDPHONEY_DIR}
