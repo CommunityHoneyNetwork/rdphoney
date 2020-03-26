@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     image: rdphoney:latest
     volumes:
-      - ./rdphoney:/etc/rdphoney/:z
+      - configs:/etc/rdphoney/
     env_file:
       - rdphoney.env
+volumes:
+  configs:
