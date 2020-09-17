@@ -16,11 +16,13 @@ ENV RDPHONEY_USER "rdphoney"
 ENV RDPHONEY_DIR "/opt"
 ENV RDPHONEY_JSON_DIR "/etc/rdphoney/"
 ENV DEBIAN_FRONTEND "noninteractive"
-# hadolint ignore=DL3008,DL3005
 
+# hadolint ignore=DL3008,DL3005
 RUN apt-get update \
-      && apt-get install -y python-apt \
-      && apt-get install -y python3-dev python3-pip python-twisted-core jq
+    && apt-get install --no-install-recommends -y python-apt \
+    && apt-get install --no-install-recommends -y python3-dev python3-pip python-twisted-core jq \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -r -g 1000 ${RDPHONEY_GROUP} && \
     useradd -r -u 1000 -m -g ${RDPHONEY_GROUP} ${RDPHONEY_USER} && \
@@ -32,8 +34,8 @@ RUN groupadd -r -g 1000 ${RDPHONEY_GROUP} && \
 WORKDIR ${RDPHONEY_DIR}
 
 COPY entrypoint.sh requirements.txt /code/
-RUN pip3 install --no-cache-dir --upgrade pip setuptools pika requests fluent-logger cymruwhois && \
-    pip3 install -r /code/requirements.txt
+RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools pika requests fluent-logger cymruwhois \
+  && python3 -m pip install -r /code/requirements.txt
 
 COPY rdphoney ${RDPHONEY_DIR}/rdphoney
 COPY rdphoney.cfg.dist ${RDPHONEY_DIR}
