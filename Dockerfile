@@ -19,7 +19,7 @@ ENV DEBIAN_FRONTEND "noninteractive"
 
 # hadolint ignore=DL3008,DL3005
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y python3-apt python3-dev python3-pip python-twisted-core jq \
+    && apt-get install --no-install-recommends -y python3-apt python3-dev python3-pip python3-setuptool python-twisted-core jq \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
