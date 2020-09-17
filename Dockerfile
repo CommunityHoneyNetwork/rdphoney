@@ -15,6 +15,8 @@ ENV RDPHONEY_GROUP "rdphoney"
 ENV RDPHONEY_USER "rdphoney"
 ENV RDPHONEY_DIR "/opt"
 ENV RDPHONEY_JSON_DIR "/etc/rdphoney/"
+ENV DEBIAN_FRONTEND "noninteractive"
+# hadolint ignore=DL3008,DL3005
 
 RUN apt-get update \
       && apt-get install -y python-apt \
