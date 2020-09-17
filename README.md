@@ -6,6 +6,5 @@ rdphoney
 
 Find the documentation here: [https://communityhoneynetwork.readthedocs.io](https://communityhoneynetwork.readthedocs.io)
 
-| branch | build status |
-| ---    | ---          |
-| master | [![master status](https://gitlab.oit.duke.edu/stingar/rdphoney/badges/master/pipeline.svg)](https://gitlab.oit.duke.edu/stingar/rdphoney/commits/master)|
+
+![CI](https://github.com/CommunityHoneyNetwork/rdphoney/workflows/CI/badge.svg)
