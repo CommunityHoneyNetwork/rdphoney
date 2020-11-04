@@ -90,11 +90,6 @@ jobs:
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --output "type=image,push=true" ${{ steps.prepare.outputs.buildx_args }}
 
-      - name: Docker Check Manifest
-        if: always() && github.event_name != 'pull_request'
-        run: |
-          docker run --rm mplatform/mquery ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}
-
       - name: Clear
         if: always() && github.event_name != 'pull_request'
         run: |
