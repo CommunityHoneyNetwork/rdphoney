@@ -1,13 +1,13 @@
 FROM ubuntu:18.04
 
-LABEL maintainer Team STINGAR <team-stingar@duke.edu>
-LABEL name "rdphoney"
-LABEL version "1.9"
-LABEL release "1"
-LABEL summary "RDPHoney Honeypot Container"
-LABEL description "RDPHoney is a simple RDP connection honeypot"
-LABEL authoritative-source-url "https://github.com/CommunityHoneyNetwork/rdphoney"
-LABEL changelog-url "https://github.com/CommunityHoneyNetwork/rdphoney/commits/master"
+LABEL maintainer="Team STINGAR <team-stingar@duke.edu>"
+LABEL name="rdphoney"
+LABEL version="1.9.1"
+LABEL release="1"
+LABEL summary="RDPHoney Honeypot Container"
+LABEL description="RDPHoney is a simple RDP connection honeypot"
+LABEL authoritative-source-url="https://github.com/CommunityHoneyNetwork/rdphoney"
+LABEL changelog-url="https://github.com/CommunityHoneyNetwork/rdphoney/commits/master"
 
 # Set DOCKER var - used by RDPHoney init to determine logging
 ENV DOCKER "yes"
