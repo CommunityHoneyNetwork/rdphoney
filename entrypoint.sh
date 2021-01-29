@@ -22,7 +22,7 @@ main () {
         -d "${DEPLOY_KEY}" \
         -u "${CHN_SERVER}" -k \
         -o "${RDPHONEY_JSON}" \
-        -i "${IP_ADDRESS}"
+        -i "${REPORTED_IP}"
 
     local uid="$(cat ${RDPHONEY_JSON} | jq -r .identifier)"
     local secret="$(cat ${RDPHONEY_JSON} | jq -r .secret)"
@@ -35,6 +35,7 @@ main () {
     export RDPHONEY_output_hpfeeds__identifier="${uid}"
     export RDPHONEY_output_hpfeeds__secret="${secret}"
     export RDPHONEY_output_hpfeeds__tags="${TAGS}"
+    export RDPHONEY_output_hpfeeds__reported_ip="${REPORTED_IP}"
 
     # Write out custom conpot config
     containedenv-config-writer.py \

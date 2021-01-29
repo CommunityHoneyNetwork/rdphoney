@@ -5,4 +5,5 @@ port = 10000
 identifier = abc123
 secret = secret
 tags =
-debug=false
+debug = false
+reported_ip = UNSET_REPORTED_IP

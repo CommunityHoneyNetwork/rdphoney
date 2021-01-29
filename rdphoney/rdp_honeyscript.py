@@ -58,6 +58,12 @@ def invoke_honeypot(addr, port, config):
                     config['tags'],
                     config['debug'])
     output.start()
+    reported_ip = config['reported_ip']
+    if reported_ip and reported_ip != 'UNSET_REPORTED_IP':
+        reported_ip = reported_ip
+    else:
+        reported_ip = None
+
     logger.info("Finished hpfeeds configuration and started hpfeeds...")
 
     while True:
@@ -76,10 +82,14 @@ def invoke_honeypot(addr, port, config):
             st = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             logger.info("Received data from {0} at {1}".format(address, st))
             user = extract_username(data)
+            if reported_ip:
+                dst_addr = reported_ip
+            else:
+                dst_addr = addr
             entry = {"timestamp": st,
                      "src_ip": address,
                      "src_port": addy[1],
-                     "dst_ip": addr,
+                     "dst_ip": dst_addr,
                      "dst_port": port,
                      "username": user,
                      "data": edata
@@ -109,6 +119,7 @@ def parse_config(config_file):
     config['ident'] = parser.get('output_hpfeeds', 'identifier')
     config['secret'] = parser.get('output_hpfeeds', 'secret')
     config['debug'] = parser.get('output_hpfeeds', 'debug')
+    config['reported_ip'] = parser.get('output_hpfeeds', 'reported_ip')
 
     try:
         config['tags'] = [tag.strip() for tag in parser.get('output_hpfeeds', 'tags').split(',')]
